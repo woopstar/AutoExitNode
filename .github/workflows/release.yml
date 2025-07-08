@@ -18,11 +18,10 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '^1.24.2'
+          go-version: 'stable'
 
       - name: Update version in main.go to ${{ github.event.release.tag_name }}
         run: |
-          # Use sed to update the currentVersion variable in main.go
           sed -i 's/var currentVersion = ".*"/var currentVersion = "${{ github.event.release.tag_name }}"/' ./main.go
 
       - name: Commit main.go with updated version
@@ -33,8 +32,9 @@ jobs:
           git commit -m "Updated ./main.go"
           git push origin HEAD:${{ github.event.release.target_commitish }}
 
-      - name: Install rsrc (for embedding icon)
-        run: go install github.com/akavel/rsrc@latest
+      - name: Install rsrc to embed icon into application
+        run: |
+          go install github.com/akavel/rsrc@latest
 
       - name: Generate Windows resource file with icon
         run: |
@@ -44,7 +44,7 @@ jobs:
         run: |
           GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o AutoExitNode.exe
 
-      - name: Upload AutoExitNode.exe to release
+      - name: Upload AutoExitNode.exe to the release
         uses: svenstaro/upload-release-action@2.11.1
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}

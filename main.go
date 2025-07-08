@@ -17,7 +17,6 @@ import (
 	"github.com/getlantern/systray"
 	"github.com/go-ole/go-ole"
 	"github.com/go-ole/go-ole/oleutil"
-	"github.com/go-toast/toast"
 )
 
 //go:embed icon_active.ico
@@ -40,6 +39,9 @@ var lastCommand string // "activated" or "deactivated"
 var tailscaleAvailable = true
 
 var currentVersion = "v1.2.1" // Default version, will be overwritten by config if present
+
+var latestVersion string
+var latestVersionURL string
 
 func main() {
 	loadConfig()
@@ -102,7 +104,11 @@ func onReady() {
 					mRunAtStartup.Check()
 				}
 			case <-mCheckUpdate.ClickedCh:
-				go checkForUpdate()
+				go func() {
+					checkForUpdate(func(ver, url string) {
+						updateVersionMenu(mVersion, ver, url)
+					})
+				}()
 			case <-mQuit.ClickedCh:
 				systray.Quit()
 				return
@@ -117,8 +123,31 @@ func onReady() {
 		}
 	}()
 
-	// Automatic update check at startup (can be removed if not desired)
-	go checkForUpdate()
+	// Periodically check for updates in the background
+	go func() {
+		for {
+			checkForUpdate(func(ver, url string) {
+				updateVersionMenu(mVersion, ver, url)
+			})
+			time.Sleep(15 * time.Minute)
+		}
+	}()
+
+	// Initial update check at startup
+	go checkForUpdate(func(ver, url string) {
+		updateVersionMenu(mVersion, ver, url)
+	})
+}
+
+// Update the version menu item if a new version is available
+func updateVersionMenu(mVersion *systray.MenuItem, ver, url string) {
+	if ver != "" && ver != currentVersion {
+		mVersion.SetTitle(fmt.Sprintf("Version: %s (Update: %s)", currentVersion, ver))
+		mVersion.SetTooltip(fmt.Sprintf("New version available: %s\n%s", ver, url))
+	} else {
+		mVersion.SetTitle(fmt.Sprintf("Version: %s", currentVersion))
+		mVersion.SetTooltip("Current version")
+	}
 }
 
 func checkAndApply(mStatus *systray.MenuItem) {
@@ -317,41 +346,61 @@ func removeStartupShortcut() {
 	}
 }
 
-func checkForUpdate() {
-	const repo = "woopstar/AutoExitNode" // Set to your repo
+func checkForUpdate(cb func(version, url string)) {
+	const repo = "woopstar/AutoExitNode" // Ensure this matches your GitHub repo (owner/repo)
 	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		fmt.Println("checkForUpdate: failed to create request:", err)
 		return
 	}
 	req.Header.Set("Accept", "application/vnd.github+json")
 	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
+		fmt.Println("checkForUpdate: HTTP request failed:", err)
 		return
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("checkForUpdate: unexpected status code: %d\n", resp.StatusCode)
+		return
+	}
 
 	var data struct {
 		TagName string `json:"tag_name"`
 		HTMLURL string `json:"html_url"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		fmt.Println("checkForUpdate: failed to decode JSON:", err)
 		return
 	}
 
 	if data.TagName != "" && data.TagName != currentVersion {
+		latestVersion = data.TagName
+		latestVersionURL = data.HTMLURL
 		showWindowsNotification("Update available!", fmt.Sprintf("New version: %s\nSee: %s", data.TagName, data.HTMLURL))
+		if cb != nil {
+			cb(data.TagName, data.HTMLURL)
+		}
+	} else if cb != nil {
+		cb("", "")
 	}
 }
 
 // showWindowsNotification displays a notification on Windows using go-toast.
 func showWindowsNotification(title, message string) {
-	(&toast.Notification{
-		AppID:   "AutoExitNode",
-		Title:   title,
-		Message: message,
-		Icon:    "icon_active.ico",
-	}).Push()
+	// Show a simple popup using Windows MessageBox via PowerShell for maximum compatibility.
+	cmd := exec.Command("powershell", "-Command", fmt.Sprintf(`Add-Type -AssemblyName PresentationFramework;[System.Windows.MessageBox]::Show('%s', '%s')`, escapeForPowerShell(message), escapeForPowerShell(title)))
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	if err := cmd.Run(); err != nil {
+		fmt.Println("showWindowsNotification: failed to show popup:", err)
+	}
+}
+
+// escapeForPowerShell escapes single quotes for PowerShell string literals.
+func escapeForPowerShell(s string) string {
+	return strings.ReplaceAll(s, "'", "''")
 }

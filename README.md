@@ -1,5 +1,12 @@
 # AutoExitNode
 
+[![GitHub Release][releases-shield]][releases]
+[![GitHub Downloads][downloads-shield]][downloads]
+[![License][license-shield]][license]
+[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
+
+![Icon](icon_active.png)
+
 **AutoExitNode** is a Windows system tray application that automatically manages your Tailscale exit node based on your network (WiFi SSID or cellular connection).
 
 ## Features
@@ -49,14 +56,6 @@
   - Check for update (checks GitHub for new version)
   - Quit (exit the app)
 
-## Development & Testing
-
-- Run `go build` to build the program.
-- Unit tests are in `main_test.go`:
-  ```
-  go test
-  ```
-
 ## Requirements
 
 - Windows 10 or newer
@@ -76,3 +75,12 @@ The app automatically checks for new versions on GitHub and shows a Windows noti
 
 **Note:**
 This project is not officially affiliated with Tailscale.
+
+[releases-shield]: https://img.shields.io/github/v/release/woopstar/AutoExitNode?style=for-the-badge
+[releases]: https://github.com/woopstar/AutoExitNode/releases
+[downloads-shield]: https://img.shields.io/github/downloads/woopstar/AutoExitNode/total.svg?style=for-the-badge
+[downloads]: https://github.com/woopstar/AutoExitNode/releases
+[license-shield]: https://img.shields.io/github/license/woopstar/AutoExitNode?style=for-the-badge
+[license]: https://github.com/woopstar/AutoExitNode/blob/main/LICENSE
+[buymecoffeebadge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-FFDD00.svg?style=for-the-badge&logo=buymeacoffee
+[buymecoffee]: https://www.buymeacoffee.com/woopstar
