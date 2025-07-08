@@ -20,29 +20,22 @@ jobs:
         with:
           go-version: '^1.24.2'
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Update config.json version to ${{ github.event.release.tag_name }}
+      - name: Update version in main.go to ${{ github.event.release.tag_name }}
         run: |
-            jq --arg v "${{ github.event.release.tag_name }}" '.version = $v' ./config.json > ./config.tmp.json
-            mv ./config.tmp.json ./config.json
+          # Use sed to update the currentVersion variable in main.go
+          sed -i 's/var currentVersion = ".*"/var currentVersion = "${{ github.event.release.tag_name }}"/' ./main.go
 
-      - name: Commit manifest update
+      - name: Commit main.go with updated version
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add ./config.json
-          git commit -m "Updated config.json"
+          git add ./main.go
+          git commit -m "Updated ./main.go"
           git push origin HEAD:${{ github.event.release.target_commitish }}
 
       - name: Build AutoExitNode for windows amd64
         run: |
           GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o AutoExitNode.exe
-
-      - name: Generate SHA256 checksum for AutoExitNode.exe
-        run: |
-          sha256sum AutoExitNode.exe > AutoExitNode.exe.sha256
 
       - name: Upload AutoExitNode.exe to release
         uses: svenstaro/upload-release-action@2.11.1
@@ -50,14 +43,5 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./AutoExitNode.exe
           asset_name: AutoExitNode.exe
-          tag: ${{ github.ref }}
-          overwrite: true
-
-      - name: Upload SHA256 file to release
-        uses: svenstaro/upload-release-action@2.11.1
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./AutoExitNode.exe.sha256
-          asset_name: AutoExitNode.exe.sha256
           tag: ${{ github.ref }}
           overwrite: true
