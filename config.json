@@ -1,0 +1,12 @@
+{
+  "version": "v1.0.0",
+  "trustedSSIDs": [
+    "Yoda-Fi",
+    "R2D2-Fi"
+  ],
+  "exitNodes": [
+    "homeassistant",
+    "router",
+    "vpn-node"
+  ]
+}
