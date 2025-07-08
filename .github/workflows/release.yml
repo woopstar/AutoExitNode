@@ -33,6 +33,13 @@ jobs:
           git commit -m "Updated ./main.go"
           git push origin HEAD:${{ github.event.release.target_commitish }}
 
+      - name: Install rsrc (for embedding icon)
+        run: go install github.com/akavel/rsrc@latest
+
+      - name: Generate Windows resource file with icon
+        run: |
+          $HOME/go/bin/rsrc -ico icon_active.ico -o resource_windows.syso
+
       - name: Build AutoExitNode for windows amd64
         run: |
           GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o AutoExitNode.exe
