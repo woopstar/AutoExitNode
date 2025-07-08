@@ -29,7 +29,6 @@ var iconInactive []byte
 type Config struct {
 	TrustedSSIDs []string `json:"trustedSSIDs"`
 	ExitNodes    []string `json:"exitNodes"`
-	Version      string   `json:"version"` // Add version field to config
 }
 
 var config Config
@@ -53,16 +52,11 @@ func loadConfig() {
 	config = Config{
 		TrustedSSIDs: []string{"Yoda-Fi", "R2D2-Fi"},
 		ExitNodes:    []string{"homeassistant", "router", "vpn-node"},
-		Version:      currentVersion, // Set default version
 	}
 	f, err := os.Open("config.json")
 	if err == nil {
 		defer f.Close()
 		_ = json.NewDecoder(f).Decode(&config)
-	}
-	// Use version from config if present, else fallback to default
-	if config.Version != "" {
-		currentVersion = config.Version
 	}
 }
 
@@ -324,7 +318,7 @@ func removeStartupShortcut() {
 }
 
 func checkForUpdate() {
-	const repo = "andreas-kruger/AutoExitNode" // Set to your repo
+	const repo = "woopstar/AutoExitNode" // Set to your repo
 	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
 
 	req, err := http.NewRequest("GET", url, nil)
