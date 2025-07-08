@@ -29,6 +29,7 @@ var iconInactive []byte
 type Config struct {
 	TrustedSSIDs []string `json:"trustedSSIDs"`
 	ExitNodes    []string `json:"exitNodes"`
+	Version      string   `json:"version"` // Add version field to config
 }
 
 var config Config
@@ -39,7 +40,7 @@ var lastCellular bool
 var lastCommand string // "activated" or "deactivated"
 var tailscaleAvailable = true
 
-const currentVersion = "v1.0.0" // Remember to update this for new releases
+var currentVersion = "v1.0.0" // Default version, will be overwritten by config if present
 
 func main() {
 	loadConfig()
@@ -52,11 +53,16 @@ func loadConfig() {
 	config = Config{
 		TrustedSSIDs: []string{"Yoda-Fi", "R2D2-Fi"},
 		ExitNodes:    []string{"homeassistant", "router", "vpn-node"},
+		Version:      currentVersion, // Set default version
 	}
 	f, err := os.Open("config.json")
 	if err == nil {
 		defer f.Close()
 		_ = json.NewDecoder(f).Decode(&config)
+	}
+	// Use version from config if present, else fallback to default
+	if config.Version != "" {
+		currentVersion = config.Version
 	}
 }
 

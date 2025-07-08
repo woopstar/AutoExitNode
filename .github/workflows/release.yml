@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+env:
+  COMPONENT_DIR: hsem
+
+jobs:
+  release_zip_file:
+    name: Prepare release asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '^1.24.2'
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Build AutoExitNode for windows amd64
+        run: |
+          GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o AutoExitNode.exe
+
+      - name: Generate SHA256 checksum for AutoExitNode.exe
+        run: |
+          sha256sum AutoExitNode.exe > AutoExitNode.exe.sha256
+
+      - name: Update config.json version to ${{ github.event.release.tag_name }}
+        run: |
+            jq --arg v "${{ github.event.release.tag_name }}" '.version = $v' ./config.json > ./config.tmp.json
+            mv ./config.tmp.json ./config.json
+
+      - name: Commit manifest update
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add ./config.json
+          git commit -m "Updated config.json"
+          git push origin HEAD:${{ github.event.release.target_commitish }}
+
+      - name: Upload AutoExitNode.exe to release
+        uses: svenstaro/upload-release-action@2.11.1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./AutoExitNode.exe
+          asset_name: AutoExitNode.exe
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload SHA256 file to release
+        uses: svenstaro/upload-release-action@2.11.1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./AutoExitNode.exe.sha256
+          asset_name: AutoExitNode.exe.sha256
+          tag: ${{ github.ref }}
+          overwrite: true
