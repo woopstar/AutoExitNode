@@ -8,15 +8,11 @@ updates:
       - dependencies
       - patch
       - skip-changelog
-  - package-ecosystem: pip
-    directory: "/.github/workflows"
-    schedule:
-      interval: daily
-    labels:
-      - dependencies
-      - patch
-      - skip-changelog
   - package-ecosystem: gomod
     directory: /
     schedule:
       interval: daily
+      time: "04:00"
+    labels:
+      - dependencies
+      - patch
