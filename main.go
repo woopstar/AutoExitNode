@@ -40,7 +40,7 @@ var lastCellular bool
 var lastCommand string // "activated" or "deactivated"
 var tailscaleAvailable = true
 
-var currentVersion = "v1.0.0" // Default version, will be overwritten by config if present
+var currentVersion = "v1.1.0" // Default version, will be overwritten by config if present
 
 func main() {
 	loadConfig()
