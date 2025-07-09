@@ -1,6 +1,6 @@
 name: Release Drafter
 
-permissions: read-all
+permissions: write-all
 
 on:
   schedule:
