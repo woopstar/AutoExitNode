@@ -1,5 +1,7 @@
 name: Sync labels
 
+permissions: read-all
+
 # yamllint disable-line rule:truthy
 on:
   push:

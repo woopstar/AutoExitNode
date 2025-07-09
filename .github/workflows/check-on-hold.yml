@@ -1,5 +1,7 @@
 name: Check if PR is on hold
 
+permissions: read-all
+
 on:
   pull_request:
     types:

@@ -1,0 +1,35 @@
+name: Build
+
+permissions: read-all
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+env:
+  COMPONENT_DIR: hsem
+
+jobs:
+  build:
+    name: Prepare build asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '^1.24.2'
+
+      - name: Install rsrc to embed icon into application
+        run: |
+          go install github.com/akavel/rsrc@latest
+
+      - name: Generate Windows resource file with icon
+        run: |
+          $HOME/go/bin/rsrc -ico assets/icon_active.ico -o resource_windows.syso
+
+      - name: Build AutoExitNode for windows amd64
+        run: |
+          GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o AutoExitNode.exe
