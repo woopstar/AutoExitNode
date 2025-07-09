@@ -1,7 +1,6 @@
 name: Sync labels
 
-permissions:
-  contents: read
+permissions: read-all
 
 # yamllint disable-line rule:truthy
 on:
@@ -16,12 +15,7 @@ jobs:
   labels:
     name: ♻️ Sync labels
     runs-on: ubuntu-latest
-    permissions:
-      # write permission is required to create a github release
-      contents: write
-      # write permission is required for autolabeler
-      # otherwise, read permission is required at least
-      pull-requests: write
+    permissions: write-all
     steps:
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v4.2.2

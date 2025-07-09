@@ -1,7 +1,6 @@
 name: Release
 
-permissions:
-  contents: read
+permissions: read-all
 
 on:
   workflow_dispatch:
@@ -13,14 +12,9 @@ env:
 
 jobs:
   release_file:
-    permissions:
-      # write permission is required to create a github release
-      contents: write
-      # write permission is required for autolabeler
-      # otherwise, read permission is required at least
-      pull-requests: write
     name: Prepare release asset
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

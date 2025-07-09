@@ -18,8 +18,7 @@
 
 name: "Microsoft Defender For Devops"
 
-permissions:
-  contents: read
+permissions: read-all
 
 on:
   push:
@@ -33,12 +32,7 @@ jobs:
   MSDO:
     # currently only windows latest is supported
     runs-on: windows-latest
-    permissions:
-      # write permission is required to create a github release
-      contents: write
-      # write permission is required for autolabeler
-      # otherwise, read permission is required at least
-      pull-requests: write
+    permissions: write-all
     steps:
     - uses: actions/checkout@v4.2.2
     - uses: actions/setup-dotnet@v4.3.1
