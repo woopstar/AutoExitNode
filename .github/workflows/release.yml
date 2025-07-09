@@ -1,6 +1,7 @@
 name: Release
 
-permissions: write-all
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:
@@ -11,7 +12,13 @@ env:
   COMPONENT_DIR: hsem
 
 jobs:
-  release_zip_file:
+  release_file:
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: write
     name: Prepare release asset
     runs-on: ubuntu-latest
     steps:
