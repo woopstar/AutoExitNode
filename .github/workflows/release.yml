@@ -11,9 +11,10 @@ env:
   COMPONENT_DIR: hsem
 
 jobs:
-  release_zip_file:
+  release_file:
     name: Prepare release asset
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
