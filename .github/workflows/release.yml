@@ -45,7 +45,7 @@ jobs:
           GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o AutoExitNode.exe
 
       - name: Upload AutoExitNode.exe to the release
-        uses: svenstaro/upload-release-action@2.11.1
+        uses: svenstaro/upload-release-action@2.11.2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./AutoExitNode.exe
