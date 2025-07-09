@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: 'stable'
+          go-version: '^1.24.2'
 
       - name: Update version in main.go to ${{ github.event.release.tag_name }}
         run: |
@@ -38,7 +38,7 @@ jobs:
 
       - name: Generate Windows resource file with icon
         run: |
-          $HOME/go/bin/rsrc -ico icon_active.ico -o resource_windows.syso
+          $HOME/go/bin/rsrc -ico assets/icon_active.ico -o resource_windows.syso
 
       - name: Build AutoExitNode for windows amd64
         run: |

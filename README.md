@@ -5,7 +5,7 @@
 [![License][license-shield]][license]
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
-![Icon](icon_active.png)
+![Icon](assets/icon_active.png)
 
 **AutoExitNode** is a Windows system tray application that automatically manages your Tailscale exit node based on your network (WiFi SSID or cellular connection).
 
@@ -32,16 +32,15 @@
 3. **Place the program and icons**
    Make sure the following files are in the same folder:
    - `AutoExitNode.exe`
-   - `icon_active.ico`
-   - `icon_inactive.ico`
    - `config.json` (optional, see below)
 
 4. **(Optional) Edit config.json**
    Example `config.json`:
    ```json
    {
-     "trustedSSIDs": ["Yoda-Fi", "R2D2-Fi"],
-     "exitNodes": ["homeassistant", "router", "vpn-node"]
+      "tailscalePath": "C:\\Program Files\\Tailscale\\tailscale.exe",
+      "trustedSSIDs": ["Yoda-Fi", "R2D2-Fi"],
+      "exitNodes": ["homeassistant", "router", "vpn-node"]
    }
    ```
 
@@ -51,7 +50,7 @@
   - **Trusted SSID:** Disables exit node
   - **Untrusted SSID/Cellular:** Enables exit node (first in the config list)
 - The tray menu shows status, version, and provides access to:
-  - Force Sync (trigger immediate update)
+  - Force Sync (trigger immediate check for network and tailscale status)
   - Run at startup (autostart)
   - Check for update (checks GitHub for new version)
   - Quit (exit the app)
@@ -64,8 +63,8 @@
 
 ## Icons
 
-- `icon_active.ico` (blue): Shown when exit node is active
-- `icon_inactive.ico` (gray): Shown when exit node is inactive
+- `assets/icon_active.ico` (blue): Shown when exit node is active
+- `assets/icon_inactive.ico` (gray): Shown when exit node is inactive
 
 ## Updates
 

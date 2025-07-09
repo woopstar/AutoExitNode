@@ -1,4 +1,5 @@
 {
+  "tailscalePath": "C:\\Program Files\\Tailscale\\tailscale.exe",
   "trustedSSIDs": [
     "Yoda-Fi",
     "R2D2-Fi"
