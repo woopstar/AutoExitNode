@@ -27,7 +27,7 @@ var startupDir = os.Getenv("APPDATA") + `\Microsoft\Windows\Start Menu\Programs\
 
 func main() {
 	loadConfig()
-	tailscaleAvailable = checkTailscaleExists()
+	tailscaleAvailable = isValidTailscalePath(tailscalePath)
 	systray.Run(autoExitNote, nil)
 }
 
