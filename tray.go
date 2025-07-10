@@ -13,7 +13,7 @@ var lastSSID string
 var lastCellular bool
 var lastCommand string
 var tailscaleAvailable = true
-var checkInterval = 15 * time.Second
+var checkInterval = 5 * time.Second
 
 // Use crypto/rand for secure random interval
 var updateInterval = getSecureRandomInterval()
