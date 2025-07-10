@@ -22,7 +22,10 @@ func isStartupEnabled() bool {
 
 // addStartupShortcut creates a Windows shortcut for autostart.
 func addStartupShortcut() {
-	ole.CoInitialize(0)
+	if err := ole.CoInitialize(0); err != nil {
+		fmt.Println("CoInitialize error:", err)
+		return
+	}
 	defer ole.CoUninitialize()
 
 	exePath, err := os.Executable()

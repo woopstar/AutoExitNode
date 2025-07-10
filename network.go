@@ -2,10 +2,13 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"net"
 	"os/exec"
 	"regexp"
 	"strings"
 	"syscall"
+	"time"
 )
 
 // getCurrentSSID returns the current WiFi SSID or an error if not found.
@@ -50,4 +53,28 @@ func isSSIDTrusted(ssid string) bool {
 		}
 	}
 	return false
+}
+
+// hasInternetConnection checks if the device has an active internet connection.
+func hasInternetConnection() bool {
+	timeout := 2 * time.Second
+	conn, err := net.DialTimeout("tcp", "8.8.8.8:53", timeout)
+	if err != nil {
+		conn, err := net.DialTimeout("tcp", "1.1.1.1:53", timeout)
+		if err != nil {
+			if conn != nil {
+				if cerr := conn.Close(); cerr != nil {
+					// Log error if closing connection fails
+					fmt.Println("Error closing connection:", cerr)
+				}
+			}
+			return false
+		}
+	}
+	if conn != nil {
+		if cerr := conn.Close(); cerr != nil {
+			fmt.Println("Error closing connection:", cerr)
+		}
+	}
+	return true
 }

@@ -53,9 +53,23 @@ func checkForUpdate(cb func(version, url string)) {
 	}
 }
 
+// isSafeForPowerShell checks for dangerous characters that could break out of the PowerShell string literal.
+func isSafeForPowerShell(s string) bool {
+	// Disallow newlines and backticks, which can break PowerShell string literals
+	return !strings.ContainsAny(s, "`\r\n")
+}
+
 // showWindowsNotification displays a notification on Windows using PowerShell.
+// Input is sanitized and validated to prevent command injection.
+// #nosec G204
 func showWindowsNotification(title, message string) {
-	cmd := exec.Command("powershell", "-Command", fmt.Sprintf(`Add-Type -AssemblyName PresentationFramework;[System.Windows.MessageBox]::Show('%s', '%s')`, escapeForPowerShell(message), escapeForPowerShell(title)))
+	if !isSafeForPowerShell(title) || !isSafeForPowerShell(message) {
+		fmt.Println("Unsafe notification input detected, aborting notification")
+		return
+	}
+	cmd := exec.Command("powershell", "-Command",
+		fmt.Sprintf(`Add-Type -AssemblyName PresentationFramework;[System.Windows.MessageBox]::Show('%s', '%s')`,
+			escapeForPowerShell(message), escapeForPowerShell(title)))
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	if err := cmd.Run(); err != nil {
 		fmt.Println("showWindowsNotification: failed to show popup:", err)

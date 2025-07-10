@@ -1,8 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"time"
 
 	"github.com/getlantern/systray"
@@ -13,7 +14,19 @@ var lastCellular bool
 var lastCommand string
 var tailscaleAvailable = true
 var checkInterval = 15 * time.Second
-var updateInterval = time.Duration(rand.Intn(60)+1) * time.Minute
+
+// Use crypto/rand for secure random interval
+var updateInterval = getSecureRandomInterval()
+
+// getSecureRandomInterval returns a random duration between 1 and 60 minutes using crypto/rand.
+func getSecureRandomInterval() time.Duration {
+	n, err := rand.Int(rand.Reader, big.NewInt(60))
+	if err != nil {
+		// fallback to 15 minutes if crypto/rand fails
+		return 15 * time.Minute
+	}
+	return time.Duration(n.Int64()+1) * time.Minute
+}
 
 func autoExitNote() {
 	mStatus := systray.AddMenuItem("Status: Initializing...", "Current network status")
@@ -86,6 +99,7 @@ func checkAndApply(mStatus *systray.MenuItem) {
 	}
 	ssid, err := getCurrentSSID()
 	cell := isCellularConnected()
+	online := hasInternetConnection()
 
 	statusText := ""
 	tooltip := ""
@@ -103,6 +117,12 @@ func checkAndApply(mStatus *systray.MenuItem) {
 		tooltip = fmt.Sprintf("Active: %s (unknown network)", getExitNodeName())
 		icon = iconActive
 		command = "activated"
+	case !online:
+		statusText = "No Internet"
+		tooltip = fmt.Sprintf("Active: %s (unknown network)", getExitNodeName())
+		icon = iconActive
+		command = "activated"
+		activateExitNode()
 	case isSSIDTrusted(ssid):
 		statusText = fmt.Sprintf("Trusted SSID: %s", ssid)
 		tooltip = fmt.Sprintf("Inactive: trusted network (%s)", ssid)
@@ -119,7 +139,7 @@ func checkAndApply(mStatus *systray.MenuItem) {
 	systray.SetIcon(icon)
 	systray.SetTooltip(tooltip)
 
-	if ssid == lastSSID && cell == lastCellular && lastCommand == command {
+	if ssid == lastSSID && cell == lastCellular && lastCommand == command && online {
 		return
 	}
 	lastSSID = ssid
