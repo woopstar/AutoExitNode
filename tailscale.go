@@ -75,7 +75,7 @@ func deactivateExitNode() {
 	cmd := exec.Command(tailscalePath,
 		"up",
 		"--exit-node=",
-		"--accept-dns=false",
+		"--accept-dns=true",
 		"--shields-up")
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	output, err := cmd.CombinedOutput()
