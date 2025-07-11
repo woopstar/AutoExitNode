@@ -22,7 +22,7 @@ type Config struct {
 
 var config Config
 var tailscalePath string
-var currentVersion = "v2.1.1"
+var currentVersion = "v2.1.2"
 var startupDir = os.Getenv("APPDATA") + `\Microsoft\Windows\Start Menu\Programs\Startup`
 
 func main() {
