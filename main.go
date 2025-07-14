@@ -39,7 +39,7 @@ func main() {
 	mutexHandle = handle
 	lastErr := windows.GetLastError()
 	if lastErr == windows.ERROR_ALREADY_EXISTS {
-		fmt.Println("Programmet kører allerede.")
+		fmt.Println("Only one instance is allowed.")
 		os.Exit(0)
 	}
 	defer windows.ReleaseMutex(mutexHandle)
