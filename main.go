@@ -3,7 +3,10 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
+	"fmt"
 	"os"
+
+	"golang.org/x/sys/windows"
 
 	"github.com/getlantern/systray"
 )
@@ -24,8 +27,24 @@ var config Config
 var tailscalePath string
 var currentVersion = "v2.1.2"
 var startupDir = os.Getenv("APPDATA") + `\Microsoft\Windows\Start Menu\Programs\Startup`
+var mutexHandle windows.Handle
 
 func main() {
+	mutexName, _ := windows.UTF16PtrFromString("Global\\AutoExitNodeMutex")
+	handle, err := windows.CreateMutex(nil, false, mutexName)
+	if err != nil {
+		fmt.Println("Failed to create mutex:", err)
+		os.Exit(1)
+	}
+	mutexHandle = handle
+	lastErr := windows.GetLastError()
+	if lastErr == windows.ERROR_ALREADY_EXISTS {
+		fmt.Println("Only one instance is allowed.")
+		os.Exit(0)
+	}
+	defer windows.ReleaseMutex(mutexHandle)
+	defer windows.CloseHandle(mutexHandle)
+
 	loadConfig()
 	tailscaleAvailable = isValidTailscalePath(tailscalePath)
 	systray.Run(autoExitNote, nil)
