@@ -19,7 +19,7 @@ jobs:
     permissions: write-all
     if: github.event.pull_request.merged == false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Execute assign labels
         id: action-assign-labels
